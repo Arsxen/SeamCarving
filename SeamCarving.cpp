@@ -161,7 +161,7 @@ void drawVerticalPath(Mat img, vector<int> bestSeamPath, Mat &imgOut) {
 
 	for (int i = 0; i < img.rows; i++) {
 		int x_pos = it[i];
-		newImg.at<Vec3b>(i, x_pos) = Vec3b(255, 255, 255);
+		newImg.at<Vec3b>(i, x_pos) = Vec3b(0, 0, 255);
 	}
 
 	imgOut = newImg;
@@ -220,24 +220,50 @@ int main() {
 			Mat rotateImg;
 			rotate(img, rotateImg, ROTATE_90_COUNTERCLOCKWISE);
 
-			computeMKmatrix(rotateImg, matrixM, matrixK);
-			findBestSeam(matrixM, matrixK, path);
-			drawVerticalPath(rotateImg, path, newImg);
+			if (c == 115) {
 
-			rotate(matrixM, matrixM, ROTATE_90_CLOCKWISE);
-			rotate(newImg, newImg, ROTATE_90_CLOCKWISE);
+				computeMKmatrix(rotateImg, matrixM, matrixK);
+				findBestSeam(matrixM, matrixK, path);
+				drawVerticalPath(rotateImg, path, pathImg);
 
-			imshow("Energy", matrixM);
-			imshow("Image", newImg);
-			waitKey(150);
+				rotate(matrixM, matrixM, ROTATE_90_CLOCKWISE);
+				rotate(pathImg, pathImg, ROTATE_90_CLOCKWISE);
 
-			removeSeam(rotateImg, path, newImg);
+				imshow("Energy", matrixM);
+				imshow("Seam", pathImg);
 
-			rotate(newImg, newImg, ROTATE_90_CLOCKWISE);
+				removeSeam(rotateImg, path, newImg);
 
-			imshow("Image", newImg);
+				rotate(newImg, newImg, ROTATE_90_CLOCKWISE);
 
-			img = newImg.clone();
+				imshow("Image", newImg);
+
+				imgDul = newImg;
+			}
+			else if (c == 119) {
+				Mat rotateImgDul;
+				rotate(imgDul, rotateImgDul, ROTATE_90_COUNTERCLOCKWISE);
+				computeMKmatrix(rotateImgDul, matrixM, matrixK);
+				findBestSeam(matrixM, matrixK, path);
+				removeSeam(rotateImgDul, path, rotateImgDul);
+				rotate(rotateImgDul, imgDul, ROTATE_90_CLOCKWISE);
+
+				computeMKmatrix(rotateImg, matrixM, matrixK);
+				drawVerticalPath(rotateImg, path, pathImg);
+
+				rotate(matrixM, matrixM, ROTATE_90_CLOCKWISE);
+				rotate(pathImg, pathImg, ROTATE_90_CLOCKWISE);
+
+				imshow("Energy", matrixM);
+				imshow("Seam", pathImg);
+
+				insertSeam(rotateImg, path, newImg);
+				rotate(newImg, newImg, ROTATE_90_CLOCKWISE);
+
+				imshow("Image", newImg);
+			}
+
+			img = newImg;
 		}
 		c = waitKey(0);
 	}
